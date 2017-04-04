@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<head>
+<meta charset="utf-8">
+<title>Football Database</title>
+</head>
+
+<body>
+
+<h1>Football Database</h1>
+<input type="button" onclick="location.href='/football'" value="Football"><br><br>
+<input type="button" onclick="location.href='/football/teams'" value="Teams">
+<input type="button" onclick="location.href='/football/players'" value="Players">
+<input type="button" onclick="location.href='/football/matches'" value="Matches">
+<br><br>
+
+Teams <input id='count_from' value='1'> to <input id='count_to' value='100'>
+<button onclick='show_football_teams()'>Show</button> <br><br>
+Search by Team Name <input id='search_team_name' value=''>
+<button onclick='search()'>Search</button> <br><br>
+
+<table id='teams_table'>
+  <tr>
+    <th>Team ID</th>
+    <th>Team Name</th>
+  </tr>
+</table>
+
+</body>
+
+<script>
+
+function show_football_teams(){
+  var count_from = document.getElementById("count_from").value;
+  var count_to = document.getElementById("count_to").value;
+  ajaxget('/db/football/teams/'+count_from+'-'+count_to, function(teams){
+    var HTML_table_row = "<tr><th>Team ID</th><th>Team Name</th></tr>";
+    for (i = 0 ; i < teams.length ; i++){      
+      HTML_table_row += "<tr><td>"+teams[i].Team_ID+"</td><td>"+teams[i].Team_Name+"</td></tr>";
+    }
+    document.getElementById("teams_table").innerHTML = HTML_table_row;
+  });
+}
+function search(){
+  var team_name = document.getElementById("search_team_name").value;
+  if(team_name != ''){
+    ajaxget('/db/football/teams/where?Team_Name='+team_name, function(teams){
+      var HTML_table_row = "<tr><th>Team ID</th><th>Team Name</th></tr>";
+      for (i = 0 ; i < teams.length ; i++){      
+        HTML_table_row += "<tr><td>"+teams[i].Team_ID+"</td><td>"+teams[i].Team_Name+"</td></tr>";
+      }
+      document.getElementById("teams_table").innerHTML = HTML_table_row;
+    });
+  }
+}
+
+function ajaxget(path,doFunction){
+  var port = 3000;
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var response = JSON.parse(this.responseText); // retrieve response from server
+      doFunction(response);
+    }           
+  }
+  xmlhttp.open("GET", "http://localhost:"+port+""+path, true);
+  xmlhttp.send();
+}
+
+</script>
+
+</html>

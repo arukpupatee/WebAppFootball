@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<head>
+<meta charset="utf-8">
+<title>Football Database</title>
+</head>
+
+<body>
+
+<h1>Football Database</h1>
+<input type="button" onclick="location.href='/football'" value="Football"><br><br>
+<input type="button" onclick="location.href='/football/teams'" value="Teams">
+<input type="button" onclick="location.href='/football/players'" value="Players">
+<input type="button" onclick="location.href='/football/matches'" value="Matches">
+<br><br>
+
+Matches <input id='count_from' value='1'> to <input id='count_to' value='100'>
+<button onclick='show_football_matches()'>Show</button> <br><br>
+
+<table id='matches_table'>
+  <tr>
+    <th>Match ID</th>
+    <th>Match Stadium</th>
+    <th>Match_Date</th>
+    <th>Home Team ID</th>
+    <th>Away Team ID</th>
+    <th>Result</th>
+  </tr>
+</table>
+
+</body>
+
+<script>
+
+function show_football_matches(){
+  var count_from = document.getElementById("count_from").value;
+  var count_to = document.getElementById("count_to").value;
+  ajaxget('/db/football/matches/'+count_from+'-'+count_to, function(matches){
+    var HTML_table_row = "<tr><th>Match ID</th><th>Match Stadium</th><th>Match Date</th><th>Home Team ID</th><th>Away Team ID</th><th>Result</th></tr>";
+    for (i = 0 ; i < matches.length ; i++){      
+      HTML_table_row += "<tr><td>"+matches[i].Match_ID+"</td><td>"+matches[i].Match_Stadium+"</td><td>"+matches[i].Match_Date+"</td><td>"+matches[i].Home_Team_ID+"</td><td>"+matches[i].Away_Team_ID+"</td><td>"+matches[i].Home_Team_Score+"-"+matches[i].Away_Team_Score+"</td></tr>";
+    }
+    document.getElementById("matches_table").innerHTML = HTML_table_row;
+  });
+}
+
+function ajaxget(path,doFunction){
+  var port = 3000;
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var response = JSON.parse(this.responseText); // retrieve response from server
+      doFunction(response);
+    }           
+  }
+  xmlhttp.open("GET", "http://localhost:"+port+""+path, true);
+  xmlhttp.send();
+}
+
+</script>
+
+</html>
